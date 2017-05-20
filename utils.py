@@ -38,18 +38,39 @@ def get_clickDay(data):
     return data
 
 
-def get_province(data):
-    data['province'] = np.floor(data['hometown'] / 100)
+def get_provinceOfHometown(data):
+    data['provinceOfHometown'] = np.floor(data['hometown'] / 100)
+    return data
+
+
+def get_provinceOfResidence(data):
+    data['provinceOfResidence'] = np.floor(data['residence'] / 100)
     return data
 
 
 def get_app_click_cnt(data):
     artiUser = pd.read_csv('data/artiUser.csv')
     data = data.join(artiUser.set_index('userID'), on = 'userID')
-    data['clickHistory'] = data['clickHistory'].fillna(0)
-    data['appNewlyCnt'] = data['appNewlyCnt'].fillna(0)
-    data['appHistoryCnt'] = data['appHistoryCnt'].fillna(0)
+    data = data.rename(columns = {'clickHistory':'clickOfUserCnt'})
+    data = data.rename(columns = {'appNewlyCnt':'appUserNewCnt'})
+    data = data.rename(columns = {'appHistoryCnt':'appUserPastCnt'})
+    data['appUserPastCnt'] = data['appUserPastCnt'].fillna(0)
+    data['appUserNewCnt'] = data['appUserNewCnt'].fillna(0)
+    data['clickOfUserCnt'] = data['clickOfUserCnt'].fillna(0)
     return data
+
+
+def get_clickOfDayCnt_train(train):
+    clickdaycnt = pd.read_csv('data/clickDayCnt.csv')
+    train = train.join(clickdaycnt, on = 'clickDay')
+    return train
+
+
+def get_clickOfDayCnt_test(test):
+    ctest = {'clickDay':[31], 'clickOfDayCnt':[test.shape[0]]} 
+    clickDayCntTest = pd.DataFrame(ctest)
+    test = test.join(clickDayCntTest.set_index('clickDay'), on = 'clickDay')
+    return test
 
 
 def get_same_dim(train, test):
